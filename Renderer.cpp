@@ -3,10 +3,11 @@
 #include "SoftRenderer.h"
 #include "GDIHelper.h"
 #include "Renderer.h"
+#include "Vector.h"
 
 bool IsInRange(int x, int y);
 void PutPixel(int x, int y); 
-void DrawCircle(int x, int y, int r);
+void DrawCircle(Vector2, int r);
 
 bool IsInRange(int x, int y)
 {
@@ -33,14 +34,16 @@ void UpdateFrame(void)
 	SetColor(255, 0, 0);
 	PutPixel(0, 0);
 
-	DrawCircle(10, 100, 40);
+	Vector2 temp(10.0f, 100.0f);
+
+	DrawCircle(temp, 40);
 
 	// Buffer Swap 
 	BufferSwap();
 }
 
 
-void DrawCircle(int x, int y, int r) {
+void DrawCircle(Vector2 drawPos, int r) {
 
 
 	for (int i = -r ; i < r; i++)
@@ -48,7 +51,7 @@ void DrawCircle(int x, int y, int r) {
 		for (int j = -r; j < r; j++)
 		{
 			if ((i * i) + (j * j) < (r * r)) {
-				PutPixel(i + x, j + y);
+				PutPixel(i + drawPos.x, j + drawPos.y);
 
 			}
 		}
