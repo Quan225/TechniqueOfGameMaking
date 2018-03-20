@@ -3,23 +3,22 @@
 #include "stdafx.h"
 #include "Matrix.h"
 
-struct Vector2 {
+struct Vector2
+{
 public:
-	float x;
-	float y;
+	float X;
+	float Y;
 
-	Vector2() : x(0), y(0) {}
-	Vector2(float X, float Y) : x(X), y(Y) {}
+public:
+	Vector2() : X(0), Y(0) {}
+	Vector2(float InX, float InY) : X(InX), Y(InY) {}
 
-	static float Distance(const Vector2 &startVec, const Vector2 &endVec);
-	static float DistanceSquared(const Vector2 &startVec, const Vector2 &endVec);
-	
+	static float Dist(const Vector2 &V1, const Vector2 &V2);
+	static float DistSquared(const Vector2 &V1, const Vector2 &V2);
+
+	Vector2 operator *(const Matrix2 Mat) const;
+
+
 };
 
 
-struct Vector3 {
-public:
-	float x;
-	float y;
-	float z;
-};
