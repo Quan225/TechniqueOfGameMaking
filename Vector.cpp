@@ -18,3 +18,4 @@ Vector2 Vector2::operator*(Matrix2 Mat) const
 	result.Y = X * Mat._21 + Y * Mat._22;
 	return result;
 }
+
