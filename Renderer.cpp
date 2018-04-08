@@ -10,6 +10,8 @@ void PutPixel(int x, int y);
 void DrawCircle(Vector2, int r);
 void DrawRectangle(Vector2 leftTop, Vector2 rightBottom);
 Vector2 SetScale(Vector2 dotPos, int hor, int ver);
+void DrawLine(Vector3 start, Vector3 dest);
+
 
 bool IsInRange(int x, int y)
 {
@@ -25,6 +27,18 @@ void PutPixel(int x, int y)
 	*(dest + offset) = g_CurrentColor;
 }
 
+float trX = 0.0f;
+float trY = 0.0f;
+float rotation = 0.0f;
+float scale = 0.0f;
+
+float l_temp_0 = 10.0f;
+float l_temp_1 = 10.0f;
+float l_temp_2 = -50.0f;
+float l_temp_3 = -30.0f;
+
+Vector3 Pt1, Pt2;
+Vector2 Pt3, Pt4;
 
 void UpdateFrame(void)
 {
@@ -35,19 +49,121 @@ void UpdateFrame(void)
 	// Draw
 	SetColor(255, 0, 0);
 	PutPixel(0, 0);
+	PutPixel(0, 1);
+	PutPixel(1, 0);
+	PutPixel(1, 1);
 
-	Vector2 temp(-50.0f, 50.0f);
-	Vector2 temp2(50.0f, -50.0f);
 
+	Matrix2 m_temp_1;
+	Matrix3 m_temp_2;
+
+	m_temp_1.SetIdentity();
+	m_temp_2.SetIdentity();
+
+	Pt3.X = l_temp_0;
+	Pt3.Y = l_temp_1;
+	Pt4.X = l_temp_2;
+	Pt4.Y = l_temp_3;
+
+	//m_temp_1.SetScale(3);
+	if (GetAsyncKeyState(VK_UP)) {
+		rotation += 0.01f;
+		m_temp_1.SetRotation(rotation);
+		Pt3 = Pt3 * m_temp_1;
+		Pt4 = Pt4 * m_temp_1;
+	}
+	if (GetAsyncKeyState(VK_RIGHT)) {
+		scale += 0.01f;
+		m_temp_1.SetScale(scale);
+		Pt3 = Pt3 * m_temp_1;
+	//	Pt4 = Pt4 * m_temp_1;
+	}
+	if (GetAsyncKeyState(VK_LEFT)) {
+		scale -= 0.01f;
+		m_temp_1.SetScale(scale);
+		Pt3 = Pt3 * m_temp_1;
+	//	Pt4 = Pt4 * m_temp_1;
+	}
 	
-	DrawRectangle(temp, temp2);
+
+	Pt1.SetPoint(Pt3.X, Pt3.Y);
+	Pt2.SetPoint(Pt4.X, Pt4.Y);
+
+
+	if (GetAsyncKeyState(VK_DOWN)) {
+		trX += 0.001f;
+		trY += 0.001f;
+		m_temp_2.SetTranform(trX, trY);
+
+		Pt1 = (Pt1 * m_temp_2);
+		Pt2 = Pt1 + Pt2;
+	}
+
+	SetColor(255, 0, 0);
+	DrawLine(Pt1, Pt2);
 	
 
-	//DrawRectangle(Vector2(-50.0f, 50.0f), Vector2(80.0f, -90.0f));
 
 	// Buffer Swap 
 	BufferSwap();
 }
+
+void DrawLine(Vector3 start, Vector3 dest)
+{
+	PutPixel(start.X, start.Y);
+	PutPixel(dest.X, dest.Y);
+
+	float countX = start.X - dest.X;
+	if (countX < 0) countX *= -1;
+	float countY = start.Y - dest.Y;
+	if (countY < 0) countY *= -1;
+
+	float dotVal = 100 / (countX * countY);
+	//float t = 0.5;
+
+	int loopVal = 0;
+
+	for (float t = 0.0f; t < 1; t += dotVal)
+	{
+		Vector3 tempStart = start;
+		Vector3 tempDest = dest;
+
+		float frontP = 1 - t;
+		float frontD = t;
+
+		tempStart.X *= frontP;
+		tempStart.Y *= frontP;
+
+		tempDest.X *= frontD;
+		tempDest.Y *= frontD;
+
+		Vector3 between;
+		between.SetPoint(tempStart.X + tempDest.X, tempStart.Y + tempDest.Y);
+
+		SetColor(0, 255, 0);
+		PutPixel(between.X, between.Y);
+		loopVal++;
+	}
+
+	/*
+	float length = (dest - start).Dist();
+
+	float inc = 1.0 / length;
+
+	int maxLength = (float)length;
+
+	for (int i = 0; i <= maxLength; i++)
+	{
+		float t = inc * i;
+		if (t >= length) t = 1.0f;
+
+		Vector3 pt = (start * (1.0f) - t) + end * t;
+		PutPixel(pt.X, pt.Y);
+	}
+	*/
+
+}
+
 
 Vector2 SetScale(Vector2 dotPos, float scaleVal) {
 

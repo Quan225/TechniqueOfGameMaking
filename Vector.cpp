@@ -19,3 +19,31 @@ Vector2 Vector2::operator*(Matrix2 Mat) const
 	return result;
 }
 
+
+Vector3 Vector3::operator+(const Vector3& vec) const
+{
+	return Vector3((X + vec.X), (Y + vec.Y), (Z + vec.Z));
+}
+
+Vector3 Vector3::operator*(const float val) const
+{
+
+	return Vector3(X * val, Y * val, Z * val);
+}
+
+
+
+Vector3 Vector3::operator*(const Matrix3 & mat) const
+{
+	return Vector3(
+		(mat._11 * X + mat._12 * X + mat._13 * X),
+		(mat._21 * Y + mat._22 * Y + mat._23 * Y),
+		(mat._31 * Z + mat._32 * Z + mat._33 * Z)
+	);
+
+}
+
+Vector3 Vector3::operator=(const Vector2& vec) const
+{
+	return Vector3(vec.X, vec.Y, 1.0f);
+}

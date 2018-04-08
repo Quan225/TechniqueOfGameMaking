@@ -32,6 +32,39 @@ public:
 
 };
 
+struct Vector3
+{
+public:
+	float X;
+	float Y;
+	float Z;
+
+	Vector3() : X(0), Y(0), Z(0) { }
+	Vector3(float InX, float InY, float InZ) : X(InX), Y(InY), Z(InZ) {}
+
+	void SetPoint(float InX, float InY)
+	{
+		X = InX;
+		Y = InY;
+		Z = 1.0f;
+	}
+
+	void SetVector(float InX, float InY)
+	{
+		X = InX;
+		Y = InY;
+		Z = 0.0f;
+	}
+
+
+	Vector3 operator +(const Vector3& vec) const;
+	Vector3 operator *(const float val) const;
+	Vector3 operator *(const Matrix3& mat) const;
+	Vector3 operator =(const Vector2& vec) const;
+};
+
+
+
 
 FORCEINLINE bool Vector2::Equals(const Vector2 & V, float Tolerance) const
 {
