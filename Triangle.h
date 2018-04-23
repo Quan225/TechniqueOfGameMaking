@@ -6,70 +6,126 @@
 struct Vertex
 {
 public:
+	Vertex() {}
+	Vertex(Vector3 v) { position = v; }
 	Vector3 position;
 	ULONG color;
-public:
-	Vertex() {}
-
-	Vertex(Vector3 pos) {
-		position = pos;
-		color = 0;
-	}
-
-	Vertex(Vector3 pos, ULONG _color) {
-		position = pos;
-		color = _color;
-	}
-
-
-	void setPosition(Vector3 pos) { position = pos; }
-	Vector3 getPosition() { return position; }
+	Vector2 uv;
 };
 
 struct Triangle
 {
 public:
-	Vertex vertices[3];
-	Vertex localVertices[3];
-
-public:
 	Triangle() {}
+	Triangle(Vertex vert1, Vertex vert2, Vertex vert3)
+	{
+		vt[0] = vert1;
+		vt[1] = vert2;
+		vt[2] = vert3;
 
-	Triangle(const Vertex& up, const Vertex& left, const Vertex& right) {
-		vertices[0] = up;
-		vertices[1] = left;
-		vertices[2] = right;
+		Vector2 sbbMin = Vector2(INFINITY, INFINITY);
+		Vector2 sbbMax = Vector2(-INFINITY, -INFINITY);
 
-		initLocalVertex();
+		for (int i = 0; i < 3; i++)
+		{
+			Vector3 t = vt[i].position;
+			if (t.X < sbbMin.X) sbbMin.X = t.X;
+			if (t.Y < sbbMin.Y) sbbMin.Y = t.Y;
+			if (t.X > sbbMax.X) sbbMax.X = t.X;
+			if (t.Y > sbbMax.Y) sbbMax.Y = t.Y;
+		}
 
+		u = (vt[1].position - vt[0].position).ToVector2();
+		v = (vt[2].position - vt[0].position).ToVector2();
+		dotUU = u.Dot(u);
+		dotUV = u.Dot(v);
+		dotVV = v.Dot(v);
+		invDenom = 1.0f / (dotUU * dotVV - dotUV * dotUV);
+
+		Min.X = RoundToInt(sbbMin.X);
+		Min.Y = RoundToInt(sbbMin.Y);
+		Max.X = RoundToInt(sbbMax.X);
+		Max.Y = RoundToInt(sbbMax.Y);
 	}
 
-	Triangle(const Vector3& up, const Vector3& left, const Vector3& right) {
+	Vertex vt[3];
 
-		vertices[0].position = up;
-		vertices[1].position = left;
-		vertices[2].position = right;
+	Vector2 u;
+	Vector2 v;
+	IntPoint Min;
+	IntPoint Max;
+	float dotUU, dotUV, dotVV;
+	float invDenom;
 
-		initLocalVertex();
-
+	void CalcBaryCentricCoord(Vector3 target, float *outS, float *outT) 
+	{
+		Vector2 w = (target - vt[0].position).ToVector2();
+		float dotUW = u.Dot(w);
+		float dotVW = v.Dot(w);
+		*outS = (dotVV * dotUW - dotUV * dotVW) * invDenom;
+		*outT = (dotUU * dotVW - dotUV * dotUW) * invDenom;
 	}
 
-	void initLocalVertex() {
-
-		Vector3 temp1 = vertices[0].position;
-		Vector3 temp2 = (vertices[1].position + temp1)* 0.5f; //중점
-		Vector3 Pt = temp2 * (1.0f - 0.33) + vertices[2].position * 0.33; // 삼각형의 무게중심
-
-		localVertices[0] = vertices[0].position - Pt;
-		localVertices[1] = vertices[1].position - Pt;
-		localVertices[2] = vertices[2].position - Pt;
-
-		localVertices[0].position.Z = 1;
-		localVertices[1].position.Z = 1;
-		localVertices[2].position.Z = 1;
+	bool IsInTrianble(float s, float t)
+	{
+		if (s < 0.0f) return false;
+		if (t < 0.0f) return false;
+		if (s + t > 1.0f) return false;
+		return true;
 	}
 
-	bool IsInTriangle() { return false; }
+	ULONG GetPixelColor(Vector3 target, float s, float t)
+	{
+		BYTE RV0 = GetRValue(vt[0].color);
+		BYTE RV1 = GetRValue(vt[1].color);
+		BYTE RV2 = GetRValue(vt[2].color);
+
+		BYTE GV0 = GetGValue(vt[0].color);
+		BYTE GV1 = GetGValue(vt[1].color);
+		BYTE GV2 = GetGValue(vt[2].color);
+
+		BYTE BV0 = GetBValue(vt[0].color);
+		BYTE BV1 = GetBValue(vt[1].color);
+		BYTE BV2 = GetBValue(vt[2].color);
+
+		BYTE FinalR = RoundToInt(RV0 * (1.0f - s - t) + RV1 * s + RV2 * t);
+		BYTE FinalG = RoundToInt(GV0 * (1.0f - s - t) + GV1 * s + GV2 * t);
+		BYTE FinalB = RoundToInt(BV0 * (1.0f - s - t) + BV1 * s + BV2 * t);
+		return RGB32(FinalR, FinalG, FinalB);
+	}
 
 };
 
+struct Mesh {
+public:
+	Vertex vertex[4];	// left Top = 0, right Top = 1, left bottom = 2, right bottm = 3
+	int index[6];
+
+	Mesh() {}
+	Mesh(Vertex* ver) {
+		vertex[0] = ver[0];
+		vertex[1] = ver[1];
+		vertex[2] = ver[2];
+		vertex[3] = ver[3];
+
+		index[0] = 0;
+		index[1] = 1;
+		index[2] = 2;
+		index[3] = 3;
+		index[4] = 2;
+		index[5] = 1;
+	}
+	Mesh(Vertex leftTop, Vertex rightTop, Vertex leftBottom, Vertex rightBottom) {
+		vertex[0] = leftTop;
+		vertex[1] = rightTop;
+		vertex[2] = leftBottom;
+		vertex[3] = rightBottom;
+
+		index[0] = 0;
+		index[1] = 1;
+		index[2] = 2;
+		index[3] = 3;
+		index[4] = 2;
+		index[5] = 1;
+	}
+};
