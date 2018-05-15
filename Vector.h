@@ -102,8 +102,17 @@ public:
 		return X * v.X + Y * v.Y + Z * v.Z;
 	}
 
+	Vector3 Cross(const Vector3& vec) const {
+		return Vector3(Y * vec.Z - Z * vec.Y, Z * vec.X - X * vec.Z, X * vec.Y - Y * vec.X);
+	}
+
+	float Magnitude() {
+		return X + Y + Z;
+	}
+
 	Vector3 operator*(float scale) const;
 	Vector3 operator+(const Vector3& V) const;
 	Vector3 operator-(const Vector3& V) const;
 	Vector3 operator *(const Matrix3 Mat) const;
+	Vector3 operator /(float dev) const;
 };
