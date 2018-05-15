@@ -11,14 +11,17 @@
 
 struct DrawData {
 public:
+	Mesh * m;
+	int layer;
+
+
+public:
 	DrawData() {}
 	DrawData(Mesh* mesh, int _layer) {
 		m = mesh;
 		layer = _layer;
 	}
 
-	Mesh * m;
-	int layer;
 };
 
 
@@ -53,17 +56,16 @@ void DrawCall (Mesh * MeshToDraw, Vector2 worldPosition, float angle, float scal
 	}
 
 
-// ===========================
 
-	Matrix3 TMat, RMat, SMat;
+	Matrix3 TMat, RMat, SMat; // TRS 변환에 사용할 매트릭스를 선언
 
 
 	// World 변환 
 	Matrix3 worldMatrix;	// worldMatrix 생성
-	TMat.SetTranslation(worldPosition.X, worldPosition.Y);	// 값을 지정한 후
+	TMat.SetTranslation(worldPosition.X, worldPosition.Y);	// TRS 매트릭스 설정
 	RMat.SetRotation(angle);
 	SMat.SetScale(scale);
-	worldMatrix = TMat * RMat * SMat;
+	worldMatrix = TMat * RMat * SMat;	// world Matrix의 값을 만들어준다.
 
 	for (int i = 0; i < MeshToDraw->VSize; i++)	
 	{
@@ -83,7 +85,7 @@ void DrawCall (Mesh * MeshToDraw, Vector2 worldPosition, float angle, float scal
 	//Vector3 camXAxis = tempCamUpVec.Cross(camZAxis); // Up 과 Z를 외적하여 X를 구한다.
 	//Vector3 camYAxis = camZAxis.Cross(camXAxis); // Z와 X를 외적하여 Y를 구한다.
 
-	// 그냥 이거면 되겠다.
+
 	TMat.SetTranslation(-cameraPosition.X, -cameraPosition.Y);	// 카메라의 위치에 맞게 이동시킨다.
 	RMat.SetRotation(-cameraAngle);
 	SMat.SetScale(cameraPosition.Z); 
@@ -95,7 +97,7 @@ void DrawCall (Mesh * MeshToDraw, Vector2 worldPosition, float angle, float scal
 	}
 
 	
-
+	// Vertex Shader
 	for ( int i = 0; i < MeshToDraw->VSize; i++ )
 	{
 		APPDATA_CUSTOM vdata;	// 정점의 데이터를 저장할 공간을 만들어
@@ -255,8 +257,8 @@ void UpdateFrame(void)
 
 	Mesh* m1 = new Mesh();
 	Mesh* m2 = new Mesh();
-	Vertex* vt1 = new Vertex[4];
-	Vertex* vt2 = new Vertex[4];
+	Vertex vt1[4];
+	Vertex vt2[4];
 
 	vt1[0].position = Pt1;
 	vt1[0].color = RGB32(255, 0, 0);
@@ -272,7 +274,7 @@ void UpdateFrame(void)
 	vt1[3].uv = Vector2(0.125f, 0.25f);
 
 
-	int* idx = new int[6];
+	int idx[6];
 	idx[0] = 0;
 	idx[1] = 1;
 	idx[2] = 2;
@@ -317,11 +319,6 @@ void UpdateFrame(void)
 		}
 	}
 
-
-	//DrawCall(m1, worldPos, angle, scale, camOffsetX);
-
-
-	//DrawCall(m2, worldPos, angle, scale, camOffsetX);
 
 	// Buffer Swap 
 	BufferSwap();
