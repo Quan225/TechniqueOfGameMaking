@@ -72,6 +72,9 @@
     <ClInclude Include="Triangle.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

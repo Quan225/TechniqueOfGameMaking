@@ -114,13 +114,13 @@ void UpdateFrame(void)
 	g_ShaderMatrix = ViewMat * ModelMat;
 
 
-	Vector3 XStart((float)g_nClientWidth * -0.5f, 0.0f, 1.0f);
-	Vector3 XEnd((float)g_nClientWidth * 0.5f, 0.0f, 1.0f);
+	Vector3 XStart((float)g_nClientWidth * -1.0f + camLocation.X, 0.0f, 1.0f);
+	Vector3 XEnd((float)g_nClientWidth * 1.0f + camLocation.X, 0.0f, 1.0f);
 	SetColor(255, 0, 0);
 	DrawLine(XStart * ViewMat, XEnd* ViewMat);	// 어디로 이동을 하든 라인이 그려지도록 할 것.
 
-	Vector3 YStart(0.0f, (float)g_nClientHeight * -0.5f, 1.0f);
-	Vector3 YEnd(0.0f, (float)g_nClientHeight * 0.5f, 1.0f);
+	Vector3 YStart(0.0f, (float)g_nClientHeight * -1.0f + camLocation.Y, 1.0f);
+	Vector3 YEnd(0.0f, (float)g_nClientHeight * 1.0f + camLocation.Y, 1.0f);
 	SetColor(0, 255, 0);
 	DrawLine(YStart* ViewMat, YEnd* ViewMat);	// 함수를 손을대든, 알고리즘을 만드는것이 중점이 되는 과제야
 
